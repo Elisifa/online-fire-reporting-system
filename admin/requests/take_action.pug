@@ -1,0 +1,62 @@
+| 0){
+| $qry = $conn-&gt;query(&quot;SELECT * from &grave;request_list&grave; where id = &apos;{$_GET[&apos;id&apos;]}&apos; &quot;);
+| if($qry-&gt;num_rows &gt; 0){
+| foreach($qry-&gt;fetch_assoc() as $k =&gt; $v){
+| $$k=$v;
+| }
+| }
+| }
+| ?&gt;
+.container-fluid
+  form#take-action-form(action='')
+    input(type='hidden' name='id' value="<?= isset($id) ? $id : '' ?>")
+    .form-group
+      label.control-label(for='status') Action
+      select#status.form-control.form-control-sm.rounded-0(name='status' required='required')
+        option(value='' selected='' disabled='') Please Select Here
+        option(value='2') Team is on their way
+        option(value='3') Fire Relief is on progress
+        option(value='4') Fire Relief Completed
+    .form-group
+      label.control-label(for='remarks') Remarks
+      textarea#remarks.form-control.form-control-sm.rounded-0(name='remarks' rows='3')
+script.
+  $(function(){
+  $('#take-action-form').submit(function(e){
+  e.preventDefault();
+  var _this = $(this)
+  $('.err-msg').remove();
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=take_action",
+  data: new FormData($(this)[0]),
+  cache: false,
+  contentType: false,
+  processData: false,
+  method: 'POST',
+  type: 'POST',
+  dataType: 'json',
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp =='object' && resp.status == 'success'){
+  location.reload()
+  }else if(resp.status == 'failed' && !!resp.msg){
+  var el = $('<div>')
+  el.addClass("alert alert-danger err-msg").text(resp.msg)
+  _this.prepend(el)
+  el.show('slow')
+  $("html, body, .modal").scrollTop(0);
+  end_loader()
+  }else{
+  alert_toast("An error occured",'error');
+  end_loader();
+  console.log(resp)
+  }
+  }
+  })
+  })
+  })

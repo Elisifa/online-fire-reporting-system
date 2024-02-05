@@ -1,0 +1,197 @@
+| 0){
+| $qry = $conn-&gt;query(&quot;SELECT * from &grave;request_list&grave; where id = &apos;{$_GET[&apos;id&apos;]}&apos; &quot;);
+| if($qry-&gt;num_rows &gt; 0){
+| foreach($qry-&gt;fetch_assoc() as $k =&gt; $v){
+| $$k=$v;
+| }
+| }
+| if(isset($team_id) &amp;&amp; $team_id &gt; 0){
+| $team_qry = $conn-&gt;query(&quot;SELECT * FROM &grave;team_list&grave; where id = &apos;{$team_id}&apos;&quot;);
+| if($team_qry-&gt;num_rows &gt; 0){
+| $res = $team_qry-&gt;fetch_array();
+| foreach($res as $k =&gt; $v){
+| if(!is_numeric($k)){
+| $team[$k] = $v;
+| }
+| }
+| }
+| }
+| }
+| ?&gt;
+style.
+  #request-logo{
+  max-width:100%;
+  max-height: 20em;
+  object-fit:scale-down;
+  object-position:center center;
+  }
+.content.py-5.px-3.bg-gradient-danger
+  h2
+    b  Request
+.row.flex-column.mt-lg-n4.mt-md-n4.justify-content-center.align-items-center
+  .col-lg-8.col-md-10.col-sm-12.col-xs-12
+    .card.rounded-0
+      .card-header.py-1
+        .card-tools
+          button#update_status.btn.btn-info.btn-sm.bg-gradient-info.rounded-0(type='button') Update Status
+          button#print.btn.btn-navy.btn-sm.bg-gradient-navy.rounded-0(type='button')
+            i.fa.fa-print
+            |  Print
+          a.btn.btn-primary.btn-sm.bg-gradient-primary.rounded-0(href="./?page=requests/manage_request&id=<?= isset($id) ? $id : '' ?>")
+            i.fa.fa-edit
+            |  Edit
+          button#delete_data.btn.btn-danger.btn-sm.bg-gradient-danger.rounded-0(type='button')
+            i.fa.fa-trash
+            |  Delete
+          a.btn.btn-light.btn-sm.bg-gradient-light.border.rounded-0(href='./?page=requests')
+            i.fa.fa-angle-left
+            |  Back to List
+  .col-lg-8.col-md-10.col-sm-12.col-xs-12.printout
+    .card.rounded-0
+      .card-header.py-1
+        .card-title Request Details
+      .card-body
+        .container-fluid
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Request Code:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Request Date&amp;Time:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Request By:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Contact #:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Message
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder &apos;, $message) : &apos;&apos; ?&gt;
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Location:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder &apos;, $location) : &apos;&apos; ?&gt;
+  .col-lg-8.col-md-10.col-sm-12.col-xs-12.printout
+    .card.rounded-0
+      .card-header
+        .card-title Assigned Team Details
+      .card-body
+        .container-fluid
+          | 0): ?&gt;
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Team Code:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Team Leader:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Team Leader Contact #:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder
+          .d-flex.w-100.mb-2
+            .col-auto.pr-1 Team Members:
+            .col-auto.flex-shrink-1.flex-grow-1.font-weight-bolder &apos;, $team[&apos;members&apos;]) : &apos;&apos; ?&gt;
+          h4.text-center There&apos;s no team assigned to this team yet.
+          .text-center
+            button#assign_team.btn.btn-flat.btn-sm.btn-light.bg-gradient-light.border(type='button')
+              i.fa.fa-users
+              |  Assign a Team
+  .col-lg-8.col-md-10.col-sm-12.col-xs-12.printout
+    .card.rounded-0
+      .card-header
+        .card-title Action History
+      .card-body
+        .container-fluid
+          table.table.table-bordered
+            colgroup
+              col(width='25%')
+              col(width='30%')
+              col(width='45%')
+            thead
+              tr
+                th.px-1.py-1.text-center Date Action Taken
+                th.px-1.py-1.text-center Status
+                th.px-1.py-1.text-center Remarks
+            tbody
+              | query(&quot;SELECT * FROM &grave;history_list&grave; where request_id = &apos;{$id}&apos; order by abs(unix_timestamp(date_created)) asc&quot;);
+              | while($row = $history-&gt;fetch_assoc()):
+              | ?&gt;
+              tr
+                td.px-1.py-1
+                td.px-1.py-1
+                td.px-1.py-1
+              | num_rows
+noscript#print-header
+  div
+    .d-flex.w-100.align-items-center
+      .col-2.text-center
+        img.rounded-circle.border(src="<?= validate_image($_settings->info('logo')) ?>" alt='' style='width: 5em;height: 5em;object-fit:cover;object-position:center center')
+      .col-8
+        div(style='line-height:1em')
+          .text-center.font-weight-bold
+            large info(&apos;name&apos;) ?&gt;
+          .text-center.font-weight-bold
+            large Request Details
+    hr
+script.
+  function print_t(){
+  var h = $('head').clone()
+  var el = ""
+  $('.printout').map(function(){
+  var p = $(this).clone()
+  p.find('.btn').remove()
+  p.find('.card').addClass('border')
+  p.removeClass('col-lg-8 col-md-10 col-sm-12 col-xs-12')
+  p.addClass('col-12')
+  el += p[0].outerHTML
+  })
+  var ph = $($('noscript#print-header').html()).clone()
+  h.find('title').text("request Details - Print View")
+  var nw = window.open("", "_blank", "width="+($(window).width() * .8)+",left="+($(window).width() * .1)+",height="+($(window).height() * .8)+",top="+($(window).height() * .1))
+  nw.document.querySelector('head').innerHTML = h.html()
+  nw.document.querySelector('body').innerHTML = ph[0].outerHTML
+  nw.document.querySelector('body').innerHTML += el
+  nw.document.close()
+  start_loader()
+  setTimeout(() => {
+  nw.print()
+  setTimeout(() => {
+  nw.close()
+  end_loader()
+  }, 200);
+  }, 300);
+  }
+  $(function(){
+  $('#print').click(function(){
+  print_t()
+  })
+  $('#assign_team').click(function(){
+  uni_modal("Assign a Team", 'requests/assign_team.php?id=<?= isset($id) ? $id : '' ?>')
+  })
+  $('#delete_data').click(function(){
+  _conf("Are you sure to delete this request permanently?","delete_request", ["<?= isset($id) ? $id :'' ?>"])
+  })
+  $('#update_status').click(function(){
+  uni_modal("Update Status", "requests/take_action.php?id=<?= isset($id) ? $id : '' ?>")
+  })
+  })
+  function delete_request($id){
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=delete_request",
+  method:"POST",
+  data:{id: $id},
+  dataType:"json",
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured.",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp== 'object' && resp.status == 'success'){
+  location.replace("./?page=requests");
+  }else{
+  alert_toast("An error occured.",'error');
+  end_loader();
+  }
+  }
+  })
+  }

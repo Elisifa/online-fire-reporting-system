@@ -1,0 +1,76 @@
+| 0){
+| $conn-&gt;query(&quot;UPDATE &grave;inquiry_list&grave; set &grave;status&grave; = 1 where id = &apos;{$_GET[&apos;id&apos;]}&apos;&quot;);
+| $qry = $conn-&gt;query(&quot;SELECT *  from &grave;inquiry_list&grave; where id = &apos;{$_GET[&apos;id&apos;]}&apos;&quot;);
+| if($qry-&gt;num_rows &gt; 0){
+| foreach($qry-&gt;fetch_array() as $k =&gt; $v){
+| if(!is_numeric($k))
+| $$k = $v;
+| }
+| }
+| }
+| ?&gt;
+style.
+  .course_logo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  }
+.content.bg-gradient-primary.py-5.px-4
+  h3.font-weight-bolder Inquiry Details
+.row.mt-n5.justify-content-center
+  .col-lg-8.col-md-10.col-sm-12.col-xs-12
+    .card.card-outline.card-primary.rounded-0.shadow
+      .card-body
+        .container-fluid
+          fieldset
+            .row.mb-3
+              .col-lg-6.col-md-6.col-sm-12.col-xs-12
+                label.control-label.text-muted(for='') Inquirer Fullname
+                .pl-4.font-weight-bolder
+            .row.mb-3
+              .col-lg-6.col-md-6.col-sm-12.col-xs-12
+                label.control-label.text-muted(for='') Email
+                .pl-4.font-weight-bolder
+              .col-lg-6.col-md-6.col-sm-12.col-xs-12
+                label.control-label.text-muted(for='') Contact #
+                .pl-4.font-weight-bolder
+            .row
+              .col-lg-12.col-md-12.col-sm-12.col-xs-12
+                label.control-label.text-muted(for='') Message
+                .pl-4 &apos;, $message)) : &apos;&apos; ?&gt;
+      .card-footer.py-1.text-center
+        button#delete_inquiry.btn.btn-danger.btn-flat.bg-gradient-danger.btn-sm(type='button')
+          i.fa.fa-trash
+          |  Delete
+        a.btn.btn-light.btn-flat.bg-gradient-light.border.btn-sm(href='./?page=inquiries')
+          i.fa.fa-angle-left
+          |  Back to List
+script.
+  $(function(){
+  $('#delete_inquiry').click(function(){
+  _conf("Are you sure to delete this Inquiry permanently?","delete_inquiry",['<?= isset($id) ? $id : '' ?>'])
+  })
+  })
+  function delete_inquiry($id){
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=delete_inquiry",
+  method:"POST",
+  data:{id: $id},
+  dataType:"json",
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured.",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp== 'object' && resp.status == 'success'){
+  location.replace("./?page=inquiries");
+  }else{
+  alert_toast("An error occured.",'error');
+  end_loader();
+  }
+  }
+  })
+  }

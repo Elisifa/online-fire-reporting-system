@@ -1,0 +1,29 @@
+style.
+  .carousel-item>img{
+  object-fit:cover !important;
+  }
+  #carouselExampleControls .carousel-inner{
+  height:35em !important;
+  }
+section.py-3
+  .container
+    .row
+      .col-md-12
+        #carouselExampleControls.carousel.slide.bg-dark(data-ride='carousel')
+          .carousel-inner
+            .carousel-item.h-100.echo.1(class='<?php $_i == ?' :='' ?='')
+              | &quot;&gt;
+              img.d-block.w-100.h-100(src="<?php echo validate_image($upload_path.'/'.$img) ?>" alt='<?php echo $img ?>')
+          button.carousel-control-prev(type='button' data-target='#carouselExampleControls' data-slide='prev')
+            span.carousel-control-prev-icon(aria-hidden='true')
+            span.visually-hidden Previous
+          button.carousel-control-next(type='button' data-target='#carouselExampleControls' data-slide='next')
+            span.carousel-control-next-icon(aria-hidden='true')
+            span.visually-hidden Next
+    .row.justify-content-center.mt-n3
+      .col-lg-10.col-md-11.col-sm-11.col-sm-11
+        .card.card-outline.rounded-0
+          .card-body
+            .container-fluid
+              center
+                hr.bg-navy.opacity-100(style='width:8em;height:3px;opacity:1')

@@ -1,0 +1,13 @@
+| conn)) {
+| $this-&gt;conn = new mysqli($this-&gt;host, $this-&gt;username, $this-&gt;password, $this-&gt;database);
+| if (!$this-&gt;conn) {
+| echo &apos;Cannot connect to database server&apos;;
+| exit;
+| }
+| }
+| }
+| public function __destruct(){
+| $this-&gt;conn-&gt;close();
+| }
+| }
+| ?&gt;

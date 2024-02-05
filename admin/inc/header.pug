@@ -1,0 +1,76 @@
+| head
+| meta(charset=&apos;utf-8&apos;)
+| meta(name=&apos;viewport&apos; content=&apos;width=device-width, initial-scale=1&apos;)
+| title
+| | info(&apos;title&apos;) != false ? $_settings-&gt;info(&apos;title&apos;).&apos; | &apos; : &apos;&apos; ?&gt;
+| | info(&apos;name&apos;) ?&gt;
+| link(rel=&apos;icon&apos; href=&quot;
+| info(&apos;logo&apos;)) ?&gt;&quot;)
+| // Google Font: Source Sans Pro
+| // 
+link(rel='stylesheet' href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback')
+|   // Font Awesome
+|   link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/fontawesome-free/css/all.min.css&apos;)
+| // Ionicons
+| // 
+link(rel='stylesheet' href='https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css')
+|   // Tempusdominus Bootstrap 4
+|   link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css&apos;)
+| // DataTables
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/datatables-bs4/css/dataTables.bootstrap4.min.css&apos;)
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/datatables-responsive/css/responsive.bootstrap4.min.css&apos;)
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/datatables-buttons/css/buttons.bootstrap4.min.css&apos;)
+| // Select2
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/select2/css/select2.min.css&apos;)
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css&apos;)
+| // iCheck
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/icheck-bootstrap/icheck-bootstrap.min.css&apos;)
+| // JQVMap
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/jqvmap/jqvmap.min.css&apos;)
+| // Theme style
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| dist/css/adminlte.css&apos;)
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| dist/css/custom.css&apos;)
+| // overlayScrollbars
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/overlayScrollbars/css/OverlayScrollbars.min.css&apos;)
+| // Daterange picker
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/daterangepicker/daterangepicker.css&apos;)
+| // summernote
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/summernote/summernote-bs4.min.css&apos;)
+| // SweetAlert2
+| link(rel=&apos;stylesheet&apos; href=&apos;
+| plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css&apos;)
+| style(type=&apos;text/css&apos;).
+| /* Chart.js */
+| @keyframes chartjs-render-animation{from{opacity:.99}to{opacity:1}}.chartjs-render-monitor{animation:chartjs-render-animation 1ms}.chartjs-size-monitor,.chartjs-size-monitor-expand,.chartjs-size-monitor-shrink{position:absolute;direction:ltr;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1}.chartjs-size-monitor-expand&gt;div{position:absolute;width:1000000px;height:1000000px;left:0;top:0}.chartjs-size-monitor-shrink&gt;div{position:absolute;width:200%;height:200%;left:0;top:0}
+| // jQuery
+| script(src=&apos;
+| plugins/jquery/jquery.min.js&apos;)
+| // jQuery UI 1.11.4
+| script(src=&apos;
+| plugins/jquery-ui/jquery-ui.min.js&apos;)
+| // SweetAlert2
+| script(src=&apos;
+| plugins/sweetalert2/sweetalert2.min.js&apos;)
+| // Toastr
+| script(src=&apos;
+| plugins/toastr/toastr.min.js&apos;)
+| script.
+| var _base_url_ = &apos;
+| &apos;;
+| script(src=&apos;
+| dist/js/script.js&apos;)
+| | load_data()); ?&gt;

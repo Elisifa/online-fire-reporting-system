@@ -1,0 +1,59 @@
+doctype html
+script.
+  start_loader()
+style.
+  body{
+  background-image: url("<?php echo validate_image($_settings->info('cover')) ?>");
+  background-size:cover;
+  background-repeat:no-repeat;
+  backdrop-filter: contrast(1);
+  }
+  #page-title{
+  text-shadow: 6px 4px 7px black;
+  font-size: 3.5em;
+  color: #fff4f4 !important;
+  background: #8080801c;
+  }
+h1#page-title.text-center.text-white.px-4.py-5
+  b info(&apos;name&apos;) ?&gt;
+.login-box
+  // /.login-logo
+  .card.card-danger.my-2
+    .card-body
+      p.login-box-msg Please enter your credentials
+      form#login-frm(action='' method='post')
+        .input-group.mb-3
+          input.form-control(type='text' name='username' autofocus='' placeholder='Username')
+          .input-group-append
+            .input-group-text
+              span.fas.fa-user
+        .input-group.mb-3
+          input.form-control(type='password' name='password' placeholder='Password')
+          .input-group-append
+            .input-group-text
+              span.fas.fa-lock
+        .row
+          .col-8
+            a(href='<?php echo base_url ?>') Go to Website
+          // /.col
+          .col-4
+            button.btn.btn-primary.btn-block(type='submit') Sign In
+          // /.col
+      // /.social-auth-links
+      //
+        <p class="mb-1">
+        <a href="forgot-password.html">I forgot my password</a>
+        </p>
+    // /.card-body
+  // /.card
+// /.login-box
+// jQuery
+script(src='plugins/jquery/jquery.min.js')
+// Bootstrap 4
+script(src='plugins/bootstrap/js/bootstrap.bundle.min.js')
+// AdminLTE App
+script(src='dist/js/adminlte.min.js')
+script.
+  $(document).ready(function(){
+  end_loader();
+  })

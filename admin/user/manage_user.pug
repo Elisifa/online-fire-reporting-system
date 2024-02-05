@@ -1,0 +1,98 @@
+| chk_flashdata(&apos;success&apos;)): ?&gt;
+script.
+  alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+style.
+  .user-avatar{
+  width:3rem;
+  height:3rem;
+  object-fit:scale-down;
+  object-position:center center;
+  }
+.card.card-outline.rounded-0.card-danger
+  .card-header
+    h3.card-title List of Users
+    .card-tools
+      a#create_new.btn.btn-flat.btn-primary(href='./?page=user/manage_user')
+        span.fas.fa-plus
+        |   Create New
+  .card-body
+    .container-fluid
+      table#list.table.table-hover.table-striped.table-bordered
+        colgroup
+          col(width='5%')
+          col(width='15%')
+          col(width='15%')
+          col(width='25%')
+          col(width='15%')
+          col(width='10%')
+          col(width='15%')
+        thead
+          tr
+            th #
+            th Date Updated
+            th Avatar
+            th Name
+            th Username
+            th Type
+            th Action
+        tbody
+          | query(&quot;SELECT *, concat(firstname,&apos; &apos;, coalesce(concat(middlename,&apos; &apos;), &apos;&apos;) , lastname) as &grave;name&grave; from &grave;users&grave; where id != &apos;{$_settings-&gt;userdata(&apos;id&apos;)}&apos; order by concat(firstname,&apos; &apos;, lastname) asc &quot;);
+          | while($row = $qry-&gt;fetch_assoc()):
+          | ?&gt;
+          tr
+            td.text-center
+            td
+            td.text-center
+              img.img-thumbnail.rounded-circle.user-avatar(src="<?= validate_image($row['avatar']) ?>" alt='')
+            td
+            td
+            td.text-center
+              | Administrator
+              | Staff
+              | N/A
+            td(align='center')
+              button.btn.btn-flat.p-1.btn-default.btn-sm.dropdown-toggle.dropdown-icon(type='button' data-toggle='dropdown')
+                | Action
+                span.sr-only Toggle Dropdown
+              .dropdown-menu(role='menu')
+                a.dropdown-item(href="./?page=user/manage_user&id=<?= $row['id'] ?>")
+                  span.fa.fa-edit.text-dark
+                  |  Edit
+                .dropdown-divider
+                a.dropdown-item.delete_data(href='javascript:void(0)' data-id="<?php echo $row['id'] ?>")
+                  span.fa.fa-trash.text-danger
+                  |  Delete
+script.
+  $(document).ready(function(){
+  $('.delete_data').click(function(){
+  _conf("Are you sure to delete this User permanently?","delete_user",[$(this).attr('data-id')])
+  })
+  $('.table').dataTable({
+  columnDefs: [
+  { orderable: false, targets: [6] }
+  ],
+  order:[0,'asc']
+  });
+  $('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
+  })
+  function delete_user($id){
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Users.php?f=delete",
+  method:"POST",
+  data:{id: $id},
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured.",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(resp == 1){
+  location.reload();
+  }else{
+  alert_toast("An error occured.",'error');
+  end_loader();
+  }
+  }
+  })
+  }

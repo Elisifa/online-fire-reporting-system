@@ -1,0 +1,94 @@
+h1
+  | Welcome,
+  | userdata(&apos;firstname&apos;).&quot; &quot;.$_settings-&gt;userdata(&apos;lastname&apos;) ?&gt;!
+hr
+.row
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-danger.elevation-1
+        i.fas.fa-users
+      .info-box-content
+        span.info-box-text Control Teams
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT * FROM team_list where delete_flag = 0&quot;)-&gt;num_rows;
+          | echo format_num($team);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  // /.col
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-secondary.elevation-1
+        i.fas.fa-fire
+      .info-box-content
+        span.info-box-text Pending Requests
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT id FROM request_list where &grave;status&grave; = 0&quot;)-&gt;num_rows;
+          | echo format_num($request);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  // /.col
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-light.elevation-1
+        i.fas.fa-fire
+      .info-box-content
+        span.info-box-text Assigned Requests
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT id FROM request_list where &grave;status&grave; = 1&quot;)-&gt;num_rows;
+          | echo format_num($request);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-info.elevation-1
+        i.fas.fa-fire
+      .info-box-content
+        span.info-box-text Team OTW Requests
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT id FROM request_list where &grave;status&grave; = 2&quot;)-&gt;num_rows;
+          | echo format_num($request);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  // /.col
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-primary.elevation-1
+        i.fas.fa-fire
+      .info-box-content
+        span.info-box-text On-Progress Requests
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT id FROM request_list where &grave;status&grave; = 3&quot;)-&gt;num_rows;
+          | echo format_num($request);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  // /.col
+  .col-12.col-sm-4.col-md-4
+    .info-box
+      span.info-box-icon.bg-gradient-teal.elevation-1
+        i.fas.fa-fire
+      .info-box-content
+        span.info-box-text Completed Requests
+        span.info-box-number.text-right.h5
+          | query(&quot;SELECT id FROM request_list where &grave;status&grave; = 4&quot;)-&gt;num_rows;
+          | echo format_num($request);
+          | ?&gt;
+      // /.info-box-content
+    // /.info-box
+  // /.col
+.container
+  #tourCarousel.carousel.slide(data-ride='carousel' data-interval='3000')
+    .carousel-inner.h-100
+      | $img): ?&gt;
+      .carousel-item.h-100.echo(class="<?php $k == 0? 'active': '' ?>")
+        img.d-block.w-100.h-100(style='object-fit:contain' src='<?php echo $img ?>' alt='')
+    a.carousel-control-prev(href='#tourCarousel' role='button' data-slide='prev')
+      span.carousel-control-prev-icon(aria-hidden='true')
+      span.sr-only Previous
+    a.carousel-control-next(href='#tourCarousel' role='button' data-slide='next')
+      span.carousel-control-next-icon(aria-hidden='true')
+      span.sr-only Next

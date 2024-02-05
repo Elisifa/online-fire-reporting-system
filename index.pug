@@ -1,0 +1,39 @@
+doctype html
+| chk_flashdata(&apos;success&apos;)): ?&gt;
+script.
+  $(function(){
+  alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+  })
+#uni_modal.modal.fade(role='dialog')
+  .modal-dialog.rounded-0.modal-md.modal-dialog-centered(role='document')
+    .modal-content.rounded-0
+      .modal-header
+        h5.modal-title
+      .modal-body
+      .modal-footer
+        button#submit.btn.btn-primary(type='button' onclick="$('#uni_modal form').submit()") Save
+        button.btn.btn-secondary(type='button' data-dismiss='modal') Cancel
+#uni_modal_right.modal.fade(role='dialog')
+  .modal-dialog.rounded-0.modal-full-height.modal-md(role='document')
+    .modal-content.rounded-0
+      .modal-header
+        h5.modal-title
+        button.close(type='button' data-dismiss='modal' aria-label='Close')
+          span.fa.fa-arrow-right
+      .modal-body
+#viewer_modal.modal.fade(role='dialog')
+  .modal-dialog.modal-md(role='document')
+    .modal-content
+      button.btn-close(type='button' data-dismiss='modal')
+        span.fa.fa-times
+      img(src='' alt='')
+#confirm_modal.modal.fade(role='dialog')
+  .modal-dialog.modal-md.modal-dialog-centered(role='document')
+    .modal-content
+      .modal-header
+        h5.modal-title Confirmation
+      .modal-body
+        #delete_content
+      .modal-footer
+        button#confirm.btn.btn-primary(type='button' onclick='') Continue
+        button.btn.btn-secondary(type='button' data-dismiss='modal') Close

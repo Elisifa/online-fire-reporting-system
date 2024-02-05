@@ -1,0 +1,88 @@
+| chk_flashdata(&apos;success&apos;)): ?&gt;
+script.
+  alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+.card.card-outline.rounded-0.card-danger
+  .card-header
+    h3.card-title List of 
+  .card-body
+    .container-fluid
+      table#list.table.table-hover.table-striped.table-bordered
+        colgroup
+          col(width='5%')
+          col(width='15%')
+          col(width='10%')
+          col(width='15%')
+          col(width='20%')
+          col(width='20%')
+          col(width='15%')
+        thead
+          tr
+            th #
+            th Date Created
+            th Code
+            th Reported By
+            th Message
+            th Location
+            th Action
+        tbody
+          | query(&quot;SELECT * from &grave;request_list&grave; {$where} order by abs(unix_timestamp(date_created)) desc &quot;);
+          | while($row = $qry-&gt;fetch_assoc()):
+          | ?&gt;
+          tr
+            td.text-center
+            td
+            td
+            td
+            td
+            td
+            td(align='center')
+              button.btn.btn-flat.p-1.btn-default.btn-sm.dropdown-toggle.dropdown-icon(type='button' data-toggle='dropdown')
+                | Action
+                span.sr-only Toggle Dropdown
+              .dropdown-menu(role='menu')
+                a.dropdown-item(href="./?page=requests/view_request&id=<?php echo $row['id'] ?>")
+                  span.fa.fa-eye.text-dark
+                  |  View
+                .dropdown-divider
+                a.dropdown-item(href="./?page=requests/manage_request&id=<?php echo $row['id'] ?>")
+                  span.fa.fa-edit.text-primary
+                  |  Edit
+                .dropdown-divider
+                a.dropdown-item.delete_data(href='javascript:void(0)' data-id="<?php echo $row['id'] ?>")
+                  span.fa.fa-trash.text-danger
+                  |  Delete
+script.
+  $(document).ready(function(){
+  $('.delete_data').click(function(){
+  _conf("Are you sure to delete this request permanently?","delete_request",[$(this).attr('data-id')])
+  })
+  $('.table').dataTable({
+  columnDefs: [
+  { orderable: false, targets: [5] }
+  ],
+  order:[0,'asc']
+  });
+  $('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
+  })
+  function delete_request($id){
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=delete_request",
+  method:"POST",
+  data:{id: $id},
+  dataType:"json",
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured.",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp== 'object' && resp.status == 'success'){
+  location.reload();
+  }else{
+  alert_toast("An error occured.",'error');
+  end_loader();
+  }
+  }
+  })
+  }

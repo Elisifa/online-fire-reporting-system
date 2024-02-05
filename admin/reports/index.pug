@@ -1,0 +1,102 @@
+.content.py-5.px-3.bg-gradient-danger
+  h2 Daily Report
+.row.flex-column.mt-4.justify-content-center.align-items-center.mt-lg-n4.mt-md-3.mt-sm-0
+  .col-lg-11.col-md-11.col-sm-12.col-xs-12
+    .card.rounded-0.mb-2.shadow
+      .card-body
+        fieldset
+          legend Filter
+          form#filter-form(action='')
+            .row.align-items-end
+              .col-lg-4.col-md-6.col-sm-12.col-xs-12
+                .form-group
+                  label.control-label(for='date') Choose Data
+                  input#date.form-control.form-control-sm.rounded-0(type='date' name='date' value='<?= $date ?>' required='required')
+              .col-lg-4.col-md-6.col-sm-12.col-xs-12
+                .form-group
+                  button.btn.btn-sm.btn-flat.btn-primary.bg-gradient-primary
+                    i.fa.fa-filter
+                    |  Filter
+  .col-lg-11.col-md-11.col-sm-12.col-xs-12
+    .card.rounded-0.mb-2.shadow
+      .card-header.py-1
+        .card-tools
+          button#print.btn.btn-flat.btn-sm.btn-light.bg-gradient-light.border(type='button')
+            i.fa.fa-print
+            |  Print
+      .card-body
+        #printout.container-fluid
+          table.table.table-bordered
+            colgroup
+              col(width='5%')
+              col(width='20%')
+              col(width='15%')
+              col(width='30%')
+              col(width='30%')
+            thead
+              tr
+                th.px-1.py-1.text-center #
+                th.px-1.py-1.text-center Request Code
+                th.px-1.py-1.text-center Reported By
+                th.px-1.py-1.text-center Message
+                th.px-1.py-1.text-center Location
+            tbody
+              | query(&quot;SELECT * FROM &grave;request_list&grave; where date(date_created) = &apos;{$date}&apos; order by abs(unix_timestamp(date_created)) asc &quot;);
+              | while($row = $requests-&gt;fetch_assoc()):
+              | ?&gt;
+              tr
+                td.px-1.py-1.align-middle.text-center
+                td.px-1.py-1.align-middle
+                td.px-1.py-1.align-middle
+                  div(line-height='1em')
+                    .font-weight-bold
+                    .font-weight-light
+                td.px-1.py-1.align-middle &quot;, $row[&apos;message&apos;]) ?&gt;
+                td.px-1.py-1.align-middle &quot;, $row[&apos;location&apos;]) ?&gt;
+              | num_rows
+noscript#print-header
+  div
+    style.
+      html{
+      min-height:unset !important;
+      }
+    .d-flex.w-100.align-items-center
+      .col-2.text-center
+        img.rounded-circle.border(src="<?= validate_image($_settings->info('logo')) ?>" alt='' style='width: 5em;height: 5em;object-fit:cover;object-position:center center')
+      .col-8
+        div(style='line-height:1em')
+          .text-center.font-weight-bold.h5.mb-0
+            large info(&apos;name&apos;) ?&gt;
+          .text-center.font-weight-bold.h5.mb-0
+            large Daily Requests Report
+          .text-center.font-weight-bold.h5.mb-0 as of 
+    hr
+script.
+  function print_r(){
+  var h = $('head').clone()
+  var el = $('#printout').clone()
+  var ph = $($('noscript#print-header').html()).clone()
+  h.find('title').text("Daily Report - Print View")
+  var nw = window.open("", "_blank", "width="+($(window).width() * .8)+",left="+($(window).width() * .1)+",height="+($(window).height() * .8)+",top="+($(window).height() * .1))
+  nw.document.querySelector('head').innerHTML = h.html()
+  nw.document.querySelector('body').innerHTML = ph[0].outerHTML
+  nw.document.querySelector('body').innerHTML += el[0].outerHTML
+  nw.document.close()
+  start_loader()
+  setTimeout(() => {
+  nw.print()
+  setTimeout(() => {
+  nw.close()
+  end_loader()
+  }, 200);
+  }, 300);
+  }
+  $(function(){
+  $('#filter-form').submit(function(e){
+  e.preventDefault()
+  location.href = './?page=reports&'+$(this).serialize()
+  })
+  $('#print').click(function(){
+  print_r()
+  })
+  })

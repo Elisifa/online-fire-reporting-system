@@ -1,0 +1,57 @@
+| conn;
+| function redirect($url=&apos;&apos;){
+| if(!empty($url))
+| echo &apos;
+script.
+  location.href="'.base_url .$url.'"
+| &apos;;
+| }
+| function validate_image($file){
+|     global $_settings;
+| &#x9;if(!empty($file)){
+| &#x9;&#x9;&#x9;// exit;
+|         $ex = explode(&quot;?&quot;,$file);
+|         $file = $ex[0];
+|         $ts = isset($ex[1]) ? &quot;?&quot;.$ex[1] : &apos;&apos;;
+| &#x9;&#x9;if(is_file(base_app.$file)){
+| &#x9;&#x9;&#x9;return base_url.$file.$ts;
+| &#x9;&#x9;}else{
+| &#x9;&#x9;&#x9;return base_url.($_settings-&gt;info(&apos;logo&apos;));
+| &#x9;&#x9;}
+| &#x9;}else{
+| &#x9;&#x9;return base_url.($_settings-&gt;info(&apos;logo&apos;));
+| &#x9;}
+| }
+| function format_num($number = &apos;&apos; , $decimal = &apos;&apos;){
+|     if(is_numeric($number)){
+|         $ex = explode(&quot;.&quot;,$number);
+|         $decLen = isset($ex[1]) ? strlen($ex[1]) : 0;
+|         if(is_numeric($decimal)){
+|             return number_format($number,$decimal);
+|         }else{
+|             return number_format($number,$decLen);
+|         }
+|     }else{
+|         return &quot;Invalid Input&quot;;
+|     }
+| }
+| function isMobileDevice(){
+|     $aMobileUA = array(
+|         &apos;/iphone/i&apos; =&gt; &apos;iPhone&apos;,
+|         &apos;/ipod/i&apos; =&gt; &apos;iPod&apos;,
+|         &apos;/ipad/i&apos; =&gt; &apos;iPad&apos;,
+|         &apos;/android/i&apos; =&gt; &apos;Android&apos;,
+|         &apos;/blackberry/i&apos; =&gt; &apos;BlackBerry&apos;,
+|         &apos;/webos/i&apos; =&gt; &apos;Mobile&apos;
+|     );
+|     //Return true if Mobile User Agent is detected
+|     foreach($aMobileUA as $sMobileKey =&gt; $sMobileOS){
+|         if(preg_match($sMobileKey, $_SERVER[&apos;HTTP_USER_AGENT&apos;])){
+|             return true;
+|         }
+|     }
+|     //Otherwise return false..
+|     return false;
+| }
+| ob_end_flush();
+| ?&gt;

@@ -1,0 +1,143 @@
+| chk_flashdata(&apos;success&apos;)): ?&gt;
+script.
+  alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+style.
+  img#cimg{
+  height: 15vh;
+  width: 15vh;
+  object-fit: cover;
+  border-radius: 100% 100%;
+  }
+  img#cimg2{
+  height: 50vh;
+  width: 100%;
+  object-fit: contain;
+  /* border-radius: 100% 100%; */
+  }
+.col-lg-12
+  .card.card-outline.rounded-0.card-danger
+    .card-header
+      h5.card-title System Information
+      //
+        <div class="card-tools">
+        <a class="btn btn-block btn-sm btn-default btn-flat border-navy new_department" href="javascript:void(0)"><i class="fa fa-plus"></i> Add New</a>
+        </div>
+    .card-body
+      form#system-frm(action='')
+        #msg.form-group
+        .form-group
+          label.control-label(for='name') System Name
+          input#name.form-control.form-control-sm(type='text' name='name' value="<?php echo $_settings->info('name') ?>")
+        .form-group
+          label.control-label(for='short_name') System Short Name
+          input#short_name.form-control.form-control-sm(type='text' name='short_name' value="<?php echo  $_settings->info('short_name') ?>")
+        .form-group
+          label.control-label(for='') Welcome Content
+          textarea.form-control.summernote(name='content[welcome]' id='' cols='30' rows='2')
+        .form-group
+          label.control-label(for='') About Us
+          textarea.form-control.summernote(name='content[about]' id='' cols='30' rows='2')
+        .form-group
+          label.control-label(for='') System Logo
+          .custom-file
+            input#customFile1.custom-file-input.rounded-circle(type='file' name='img' onchange='displayImg(this,$(this))')
+            label.custom-file-label(for='customFile1') Choose file
+        .form-group.d-flex.justify-content-center
+          img#cimg.img-fluid.img-thumbnail(src="<?php echo validate_image($_settings->info('logo')) ?>" alt='')
+        .form-group
+          label.control-label(for='') Website Cover
+          .custom-file
+            input#customFile2.custom-file-input.rounded-circle(type='file' name='cover' onchange='displayImg2(this,$(this))')
+            label.custom-file-label(for='customFile2') Choose file
+        .form-group.d-flex.justify-content-center
+          img#cimg2.img-fluid.img-thumbnail(src="<?php echo validate_image($_settings->info('cover')) ?>" alt='')
+        .form-group
+          label.control-label(for='') Banner Images
+          .custom-file
+            input#customFile3.custom-file-input.rounded-circle(type='file' name='banners[]' multiple='' accept='.png,.jpg,.jpeg' onchange='displayImg3(this,$(this))')
+            label.custom-file-label(for='customFile3') Choose file
+          small
+            i Choose to upload new banner immages
+        .d-flex.w-100.align-items-center.img-item
+          span
+            img.img-thumbnail(src="<?php echo base_url.$upload_path.'/'.$img." ?v='.(time()) ?>' width='150px' height='100px' style='object-fit:cover;' alt='')
+          span.ml-4
+            button.btn.btn-sm.btn-default.text-danger.rem_img(type='button' data-path="<?php echo base_app.$upload_path.'/'.$img ?>")
+              i.fa.fa-trash
+    .card-footer
+      .col-md-12
+        .row
+          button.btn.btn-sm.btn-primary(form='system-frm') Update
+script.
+  function displayImg(input,_this) {
+  if (input.files && input.files[0]) {
+  var reader = new FileReader();
+  reader.onload = function (e) {
+  $('#cimg').attr('src', e.target.result);
+  _this.siblings('.custom-file-label').html(input.files[0].name)
+  }
+  reader.readAsDataURL(input.files[0]);
+  }
+  }
+  function displayImg2(input,_this) {
+  if (input.files && input.files[0]) {
+  var reader = new FileReader();
+  reader.onload = function (e) {
+  _this.siblings('.custom-file-label').html(input.files[0].name)
+  $('#cimg2').attr('src', e.target.result);
+  }
+  reader.readAsDataURL(input.files[0]);
+  }
+  }
+  function displayImg3(input,_this) {
+  var fnames = [];
+  Object.keys(input.files).map(function(k){
+  fnames.push(input.files[k].name)
+  })
+  _this.siblings('.custom-file-label').html(fnames.join(", "))
+  }
+  function delete_img($path){
+  start_loader()
+  $.ajax({
+  url: _base_url_+'classes/Master.php?f=delete_img',
+  data:{path:$path},
+  method:'POST',
+  dataType:"json",
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured while deleting an Image","error");
+  end_loader()
+  },
+  success:function(resp){
+  $('.modal').modal('hide')
+  if(typeof resp =='object' && resp.status == 'success'){
+  $('[data-path="'+$path+'"]').closest('.img-item').hide('slow',function(){
+  $('[data-path="'+$path+'"]').closest('.img-item').remove()
+  })
+  alert_toast("Image Successfully Deleted","success");
+  }else{
+  console.log(resp)
+  alert_toast("An error occured while deleting an Image","error");
+  }
+  end_loader()
+  }
+  })
+  }
+  $(document).ready(function(){
+  $('.rem_img').click(function(){
+  _conf("Are sure to delete this image permanently?",'delete_img',["'"+$(this).attr('data-path')+"'"])
+  })
+  $('.summernote').summernote({
+  height: 200,
+  toolbar: [
+  [ 'style', [ 'style' ] ],
+  [ 'font', [ 'bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear'] ],
+  [ 'fontname', [ 'fontname' ] ],
+  [ 'fontsize', [ 'fontsize' ] ],
+  [ 'color', [ 'color' ] ],
+  [ 'para', [ 'ol', 'ul', 'paragraph', 'height' ] ],
+  [ 'table', [ 'table' ] ],
+  [ 'view', [ 'undo', 'redo', 'fullscreen', 'help' ] ]
+  ]
+  })
+  })

@@ -1,0 +1,34 @@
+section#home.page-section.bg-dark
+  .container
+    h2.text-center Tour Packages
+    .d-flex.w-100.justify-content-center
+      hr.border-warning(style='border:3px solid' width='15%')
+    .d-flex.w-100
+      | query(&quot;SELECT * FROM &grave;packages&grave; order by rand() &quot;);
+      | while($row = $packages-&gt;fetch_assoc() ):
+      | $cover=&apos;&apos;;
+      | if(is_dir(base_app.&apos;uploads/package_&apos;.$row[&apos;id&apos;])){
+      | $img = scandir(base_app.&apos;uploads/package_&apos;.$row[&apos;id&apos;]);
+      | $k = array_search(&apos;.&apos;,$img);
+      | if($k !== false)
+      | unset($img[$k]);
+      | $k = array_search(&apos;..&apos;,$img);
+      | if($k !== false)
+      | unset($img[$k]);
+      | $cover = isset($img[2]) ? &apos;uploads/package_&apos;.$row[&apos;id&apos;].&apos;/&apos;.$img[2] : &quot;&quot;;
+      | }
+      | $row[&apos;description&apos;] = strip_tags(stripslashes(html_entity_decode($row[&apos;description&apos;])));
+      | ?&gt;
+      .card.w-100.rounded-0
+        img.card-img-top(src='<?php echo validate_image($cover) ?>' alt="<?php echo $row['title'] ?>" height='200rem' style='object-fit:cover')
+        .card-body
+          h5.card-title.truncate-1
+          p.card-text.truncate
+          .w-100.d-flex.justify-content-end
+            a.btn.btn-sm.btn-flat.btn-warning(href="./?page=packages&id=<?php echo md5($row['id']) ?>")
+              | View Package 
+              i.fa.fa-arrow-right
+    .d-flex.w-100.justify-content-end
+      a.btn.btn-flat.btn-warning.mr-4(href='./?page=packages')
+        | Explore Package 
+        i.fa.fa-arrow-right

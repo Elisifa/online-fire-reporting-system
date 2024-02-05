@@ -1,0 +1,6 @@
+| userdata(&apos;type&apos;) == 2){
+| redirect(&apos;login.php&apos;);
+| }
+| if(isset($_SESSION[&apos;userdata&apos;]) &amp;&amp; strpos($link, &apos;login.php&apos;) &amp;&amp; $_settings-&gt;userdata(&apos;type&apos;) == 2){
+| redirect(&apos;index.php&apos;);
+| }

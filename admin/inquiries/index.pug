@@ -1,0 +1,91 @@
+| chk_flashdata(&apos;success&apos;)): ?&gt;
+script.
+  alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
+style.
+  .inquiry-logo{
+  width:3em;
+  height:3em;
+  object-fit:cover;
+  object-position:center center;
+  }
+.card.card-outline.rounded-0.card-danger
+  .card-header
+    h3.card-title List of Inquiries
+  .card-body
+    .container-fluid
+      table#list.table.table-hover.table-striped.table-bordered
+        colgroup
+          col(width='5%')
+          col(width='20%')
+          col(width='25%')
+          col(width='30%')
+          col(width='15%')
+          col(width='10%')
+        thead
+          tr
+            th #
+            th Date Created
+            th Inquirer
+            th Message
+            th Status
+            th Action
+        tbody
+          | query(&quot;SELECT * from &grave;inquiry_list&grave; order by &grave;status&grave; asc, abs(unix_timestamp(date_created)) desc &quot;);
+          | while($row = $qry-&gt;fetch_assoc()):
+          | ?&gt;
+          tr
+            td.text-center
+            td
+            td
+            td
+              p.mb-0.truncate-1
+            td.text-center
+              span.badge.badge-success.px-3.rounded-pill Read
+              span.badge.badge-danger.px-3.rounded-pill Unread
+            td(align='center')
+              button.btn.btn-flat.p-1.btn-default.btn-sm.dropdown-toggle.dropdown-icon(type='button' data-toggle='dropdown')
+                | Action
+                span.sr-only Toggle Dropdown
+              .dropdown-menu(role='menu')
+                a.dropdown-item(href="./?page=inquiries/view_inquiry&id=<?php echo $row['id'] ?>")
+                  span.fa.fa-eye.text-dark
+                  |  View
+                .dropdown-divider
+                a.dropdown-item.delete_data(href='javascript:void(0)' data-id="<?php echo $row['id'] ?>")
+                  span.fa.fa-trash.text-danger
+                  |  Delete
+script.
+  $(document).ready(function(){
+  $('.delete_data').click(function(){
+  _conf("Are you sure to delete this Inquiry permanently?","delete_inquiry",[$(this).attr('data-id')])
+  })
+  $('.table').dataTable({
+  columnDefs: [
+  { orderable: false, targets: [6] }
+  ],
+  order:[0,'asc']
+  });
+  $('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
+  })
+  function delete_inquiry($id){
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=delete_inquiry",
+  method:"POST",
+  data:{id: $id},
+  dataType:"json",
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured.",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp== 'object' && resp.status == 'success'){
+  location.reload();
+  }else{
+  alert_toast("An error occured.",'error');
+  end_loader();
+  }
+  }
+  })
+  }

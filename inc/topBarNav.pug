@@ -1,0 +1,52 @@
+style.
+  .user-img{
+  position: absolute;
+  height: 27px;
+  width: 27px;
+  object-fit: cover;
+  left: -7%;
+  top: -12%;
+  }
+  .user-dd:hover{
+  color:#fff !important
+  }
+nav.navbar.navbar-expand-lg.navbar-dark.bg-gradient-danger
+  .container.px-4.px-lg-5
+    button.navbar-toggler.btn.btn-sm(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    a.navbar-brand(href='./')
+      img.d-inline-block.align-top(src="<?php echo validate_image($_settings->info('logo')) ?>" width='30' height='30' alt='' loading='lazy')
+      | info(&apos;short_name&apos;) ?&gt;
+    #navbarSupportedContent.collapse.navbar-collapse
+      ul.navbar-nav.me-auto.mb-2.mb-lg-0.ms-lg-4
+        li.nav-item
+          a.nav-link.text-white(aria-current='page' href='./') Home
+        li.nav-item
+          a.nav-link.text-white(href='./?p=report') Report
+        li.nav-item
+          a#search_report.nav-link.text-white(href='javascript:void(0)') View Status
+        li.nav-item
+          a.nav-link.text-white(href='./?p=about') About
+        li.nav-item
+          a.nav-link.text-white(href='./?p=contact') Contact Us
+      .d-flex.align-items-center
+        a.font-weight-bolder.text-light.mx-2.text-decoration-none(href='./admin') Login
+script.
+  $(function(){
+  $('#search_report').click(function(){
+  uni_modal("Search Request Report","report/search.php")
+  })
+  $('#navbarResponsive').on('show.bs.collapse', function () {
+  $('#mainNav').addClass('navbar-shrink')
+  })
+  $('#navbarResponsive').on('hidden.bs.collapse', function () {
+  if($('body').offset.top == 0)
+  $('#mainNav').removeClass('navbar-shrink')
+  })
+  })
+  $('#search-form').submit(function(e){
+  e.preventDefault()
+  var sTxt = $('[name="search"]').val()
+  if(sTxt != '')
+  location.href = './?p=products&search='+sTxt;
+  })

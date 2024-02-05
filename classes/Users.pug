@@ -1,0 +1,253 @@
+| | settings = $_settings;
+| | parent::__construct();
+| | }
+| | public function __destruct(){
+| | parent::__destruct();
+| | }
+| | public function save_users(){
+| | if(empty($_POST[&apos;password&apos;]))
+| | unset($_POST[&apos;password&apos;]);
+| | else
+| | $_POST[&apos;password&apos;] = md5($_POST[&apos;password&apos;]);
+| | extract($_POST);
+| | $data = &apos;&apos;;
+| | foreach($_POST as $k =&gt; $v){
+| | if(!in_array($k,array(&apos;id&apos;))){
+| | if(!empty($data)) $data .=&quot; , &quot;;
+| | $data .= &quot; {$k} = &apos;{$v}&apos; &quot;;
+| | }
+| | }
+| | if(empty($id)){
+| | $qry = $this-&gt;conn-&gt;query(&quot;INSERT INTO users set {$data}&quot;);
+| | if($qry){
+| | $id=$this-&gt;conn-&gt;insert_id;
+| | $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&apos;User Details successfully saved.&apos;);
+| | foreach($_POST as $k =&gt; $v){
+| | if($k != &apos;id&apos;){
+| | if(!empty($data)) $data .=&quot; , &quot;;
+| | if($this-&gt;settings-&gt;userdata(&apos;id&apos;) == $id)
+| | $this-&gt;settings-&gt;set_userdata($k,$v);
+| | }
+| | }
+| | if(!empty($_FILES[&apos;img&apos;][&apos;tmp_name&apos;])){
+| | if(!is_dir(base_app.&quot;uploads/avatars&quot;))
+| | mkdir(base_app.&quot;uploads/avatars&quot;);
+| | $ext = pathinfo($_FILES[&apos;img&apos;][&apos;name&apos;], PATHINFO_EXTENSION);
+| | $fname = &quot;uploads/avatars/$id.png&quot;;
+| | $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| | if(!in_array($_FILES[&apos;img&apos;][&apos;type&apos;],$accept)){
+| | $err = &quot;Image file type is invalid&quot;;
+| | }
+| | if($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/jpeg&apos;)
+| | $uploadfile = imagecreatefromjpeg($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | elseif($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/png&apos;)
+| | $uploadfile = imagecreatefrompng($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | if(!$uploadfile){
+| | $err = &quot;Image is invalid&quot;;
+| | }
+| | $temp = imagescale($uploadfile,200,200);
+| | if(is_file(base_app.$fname))
+| | unlink(base_app.$fname);
+| | $upload =imagepng($temp,base_app.$fname);
+| | if($upload){
+| | $this-&gt;conn-&gt;query(&quot;UPDATE &amp;grave;users&amp;grave; set &amp;grave;avatar&amp;grave; = CONCAT(&apos;{$fname}&apos;, &apos;?v=&apos;,unix_timestamp(CURRENT_TIMESTAMP)) where id = &apos;{$id}&apos;&quot;);
+| | if($this-&gt;settings-&gt;userdata(&apos;id&apos;) == $id)
+| | $this-&gt;settings-&gt;set_userdata(&apos;avatar&apos;,$fname.&quot;?v=&quot;.time());
+| | }
+| | imagedestroy($temp);
+| | }
+| | return 1;
+| | }else{
+| | return 2;
+| | }
+| | }else{
+| | $qry = $this-&gt;conn-&gt;query(&quot;UPDATE users set $data where id = {$id}&quot;);
+| | if($qry){
+| | $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&apos;User Details successfully updated.&apos;);
+| | foreach($_POST as $k =&gt; $v){
+| | if($k != &apos;id&apos;){
+| | if(!empty($data)) $data .=&quot; , &quot;;
+| | if($this-&gt;settings-&gt;userdata(&apos;id&apos;) == $id)
+| | $this-&gt;settings-&gt;set_userdata($k,$v);
+| | }
+| | }
+| | if(!empty($_FILES[&apos;img&apos;][&apos;tmp_name&apos;])){
+| | if(!is_dir(base_app.&quot;uploads/avatars&quot;))
+| | mkdir(base_app.&quot;uploads/avatars&quot;);
+| | $ext = pathinfo($_FILES[&apos;img&apos;][&apos;name&apos;], PATHINFO_EXTENSION);
+| | $fname = &quot;uploads/avatars/$id.png&quot;;
+| | $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| | if(!in_array($_FILES[&apos;img&apos;][&apos;type&apos;],$accept)){
+| | $err = &quot;Image file type is invalid&quot;;
+| | }
+| | if($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/jpeg&apos;)
+| | $uploadfile = imagecreatefromjpeg($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | elseif($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/png&apos;)
+| | $uploadfile = imagecreatefrompng($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | if(!$uploadfile){
+| | $err = &quot;Image is invalid&quot;;
+| | }
+| | $temp = imagescale($uploadfile,200,200);
+| | if(is_file(base_app.$fname))
+| | unlink(base_app.$fname);
+| | $upload =imagepng($temp,base_app.$fname);
+| | if($upload){
+| | $this-&gt;conn-&gt;query(&quot;UPDATE &amp;grave;users&amp;grave; set &amp;grave;avatar&amp;grave; = CONCAT(&apos;{$fname}&apos;, &apos;?v=&apos;,unix_timestamp(CURRENT_TIMESTAMP)) where id = &apos;{$id}&apos;&quot;);
+| | if($this-&gt;settings-&gt;userdata(&apos;id&apos;) == $id)
+| | $this-&gt;settings-&gt;set_userdata(&apos;avatar&apos;,$fname.&quot;?v=&quot;.time());
+| | }
+| | imagedestroy($temp);
+| | }
+| | return 1;
+| | }else{
+| | return &quot;UPDATE users set $data where id = {$id}&quot;;
+| | }
+| | }
+| | }
+| | public function delete_users(){
+| | extract($_POST);
+| | $qry = $this-&gt;conn-&gt;query(&quot;DELETE FROM users where id = $id&quot;);
+| | if($qry){
+| | $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&apos;User Details successfully deleted.&apos;);
+| | if(is_file(base_app.&quot;uploads/avatars/$id.png&quot;))
+| | unlink(base_app.&quot;uploads/avatars/$id.png&quot;);
+| | return 1;
+| | }else{
+| | return false;
+| | }
+| | }
+| | function registration(){
+| | if(!empty($_POST[&apos;password&apos;]))
+| | $_POST[&apos;password&apos;] = md5($_POST[&apos;password&apos;]);
+| | else
+| | unset($_POST[&apos;password&apos;]);
+| | extract($_POST);
+| | $main_field = [&apos;firstname&apos;, &apos;middlename&apos;, &apos;lastname&apos;, &apos;email&apos;, &apos;status&apos;, &apos;password&apos;];
+| | $data = &quot;&quot;;
+| | $check = $this-&gt;conn-&gt;query(&quot;SELECT * FROM &amp;grave;tutor_list&amp;grave; where email = &apos;{$email}&apos; &quot;.($id &gt; 0 ? &quot; and id!=&apos;{$id}&apos;&quot; : &quot;&quot;).&quot; &quot;)-&gt;num_rows;
+| | if($check &gt; 0){
+| | $resp[&apos;status&apos;] = &apos;failed&apos;;
+| | $resp[&apos;msg&apos;] = &apos;Username already exists.&apos;;
+| | return json_encode($resp);
+| | }
+| | foreach($_POST as $k =&gt; $v){
+| | $v = $this-&gt;conn-&gt;real_escape_string($v);
+| | if(in_array($k, $main_field)){
+| | if(!empty($data)) $data .= &quot;, &quot;;
+| | $data .= &quot; &amp;grave;{$k}&amp;grave; = &apos;{$v}&apos; &quot;;
+| | }
+| | }
+| | if(empty($id)){
+| | $sql = &quot;INSERT INTO &amp;grave;tutor_list&amp;grave; set {$data} &quot;;
+| | }else{
+| | $sql = &quot;UPDATE &amp;grave;tutor_list&amp;grave; set {$data} where id = &apos;{$id}&apos; &quot;;
+| | }
+| | $save = $this-&gt;conn-&gt;query($sql);
+| | if($save){
+| | $uid = !empty($id) ? $id : $this-&gt;conn-&gt;insert_id;
+| | $resp[&apos;status&apos;] = &apos;success&apos;;
+| | $resp[&apos;uid&apos;] = $uid;
+| | if(!empty($id))
+| | $resp[&apos;msg&apos;] = &apos;User Details has been updated successfully&apos;;
+| | else
+| | $resp[&apos;msg&apos;] = &apos;Your Account has been created successfully&apos;;
+| | if(!empty($_FILES[&apos;img&apos;][&apos;tmp_name&apos;])){
+| | if(!is_dir(base_app.&quot;uploads/tutors&quot;))
+| | mkdir(base_app.&quot;uploads/tutors&quot;);
+| | $ext = pathinfo($_FILES[&apos;img&apos;][&apos;name&apos;], PATHINFO_EXTENSION);
+| | $fname = &quot;uploads/tutors/$uid.png&quot;;
+| | $accept = array(&apos;image/jpeg&apos;,&apos;image/png&apos;);
+| | if(!in_array($_FILES[&apos;img&apos;][&apos;type&apos;],$accept)){
+| | $resp[&apos;msg&apos;] = &quot;Image file type is invalid&quot;;
+| | }
+| | if($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/jpeg&apos;)
+| | $uploadfile = imagecreatefromjpeg($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | elseif($_FILES[&apos;img&apos;][&apos;type&apos;] == &apos;image/png&apos;)
+| | $uploadfile = imagecreatefrompng($_FILES[&apos;img&apos;][&apos;tmp_name&apos;]);
+| | if(!$uploadfile){
+| | $resp[&apos;msg&apos;] = &quot;Image is invalid&quot;;
+| | }
+| | $temp = imagescale($uploadfile,200,200);
+| | if(is_file(base_app.$fname))
+| | unlink(base_app.$fname);
+| | $upload =imagepng($temp,base_app.$fname);
+| | if($upload){
+| | $this-&gt;conn-&gt;query(&quot;UPDATE &amp;grave;tutor_list&amp;grave; set &amp;grave;avatar&amp;grave; = CONCAT(&apos;{$fname}&apos;, &apos;?v=&apos;,unix_timestamp(CURRENT_TIMESTAMP)) where id = &apos;{$uid}&apos;&quot;);
+| | }
+| | imagedestroy($temp);
+| | }
+| | if(!empty($uid) &amp;&amp; $this-&gt;settings-&gt;userdata(&apos;login_type&apos;) != 1){
+| | $user = $this-&gt;conn-&gt;query(&quot;SELECT * FROM &amp;grave;tutor_list&amp;grave; where id = &apos;{$uid}&apos; &quot;);
+| | if($user-&gt;num_rows &gt; 0){
+| | $res = $user-&gt;fetch_array();
+| | foreach($res as $k =&gt; $v){
+| | if(!is_numeric($k) &amp;&amp; $k != &apos;password&apos;){
+| | $this-&gt;settings-&gt;set_userdata($k, $v);
+| | }
+| | }
+| | $this-&gt;settings-&gt;set_userdata(&apos;login_type&apos;, &apos;2&apos;);
+| | }
+| | }
+| | $data = &quot;&quot;;
+| | foreach($_POST as $k =&gt; $v){
+| | if(!in_array($k, array_merge([&apos;id&apos;], $main_field))){
+| | if(!empty($data)) $data .= &quot;, &quot;;
+| | $data .= &quot;(&apos;{$uid}&apos;, &apos;{$this-&gt;conn-&gt;real_escape_string($k)}&apos;, &apos;{$this-&gt;conn-&gt;real_escape_string($v)}&apos;)&quot;;
+| | }
+| | }
+| | if(!empty($id) &amp;&amp; !empty($data)){
+| | $this-&gt;conn-&gt;query(&quot;DELETE FROM &amp;grave;tutor_meta&amp;grave; where tutor_id = &apos;{$uid}&apos; &quot;);
+| | }
+| | if(!empty($data)){
+| | $sql2 = &quot;INSERT INTO &amp;grave;tutor_meta&amp;grave; (&amp;grave;tutor_id&amp;grave;, &amp;grave;meta_field&amp;grave;, &amp;grave;meta_value&amp;grave;) VALUES {$data}&quot;;
+| | $save2 = $this-&gt;conn-&gt;query($sql2);
+| | if(!$save2){
+| | $resp[&apos;status&apos;] = &apos;failed&apos;;
+| | $resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| | $resp[&apos;sql&apos;] = $sql2;
+| | if(empty($id)){
+| | $this-&gt;conn-&gt;query(&quot;DELETE FROM &amp;grave;tutor_list&amp;grave; where id = &apos;{$uid}&apos;&quot;);
+| | }
+| | }
+| | }
+| | }else{
+| | $resp[&apos;status&apos;] = &apos;failed&apos;;
+| | $resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| | $resp[&apos;sql&apos;] = $sql;
+| | }
+| | if($resp[&apos;status&apos;] == &apos;success&apos; &amp;&amp; isset($resp[&apos;msg&apos;]))
+| | $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;, $resp[&apos;msg&apos;]);
+| | return json_encode($resp);
+| | }
+| | public function delete_tutor(){
+| | extract($_POST);
+| | $qry = $this-&gt;conn-&gt;query(&quot;UPDATE tutor_list set delete_flag = 1 where id = $id&quot;);
+| | if($qry){
+| | $this-&gt;settings-&gt;set_flashdata(&apos;success&apos;,&apos;Tutor Details has been deleted successfully.&apos;);
+| | $resp[&apos;status&apos;] = &apos;success&apos;;
+| | }else{
+| | $resp[&apos;status&apos;] = &apos;failed&apos;;
+| | $resp[&apos;msg&apos;] = $this-&gt;conn-&gt;error;
+| | }
+| | return json_encode($resp);
+| | }
+| | }
+| | $users = new users();
+| | $action = !isset($_GET[&apos;f&apos;]) ? &apos;none&apos; : strtolower($_GET[&apos;f&apos;]);
+| | switch ($action) {
+| | case &apos;save&apos;:
+| | echo $users-&gt;save_users();
+| | break;
+| | case &apos;delete&apos;:
+| | echo $users-&gt;delete_users();
+| | break;
+| | case &apos;registration&apos;:
+| | echo $users-&gt;registration();
+| | break;
+| | case &apos;delete_tutor&apos;:
+| | echo $users-&gt;delete_tutor();
+| | break;
+| | default:
+| | // echo $sysset-&gt;index();
+| | break;
+| | }

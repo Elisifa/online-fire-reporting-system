@@ -1,0 +1,75 @@
+// Main Sidebar Container
+aside.main-sidebar.sidebar-dark-primary.elevation-4.sidebar-no-expand
+  // Brand Logo
+  a.brand-link.bg-gradient-navy.text-sm(href='<?php echo base_url ?>admin')
+    img.brand-image.img-circle.elevation-3(src="<?php echo validate_image($_settings->info('logo'))?>" alt='Store Logo' style='opacity: .8;width: 1.5rem;height: 1.5rem;max-height: unset')
+    span.brand-text.font-weight-light info(&apos;short_name&apos;) ?&gt;
+  // Sidebar
+  .sidebar.os-host.os-theme-light.os-host-overflow.os-host-overflow-y.os-host-resize-disabled.os-host-transition.os-host-scrollbar-horizontal-hidden
+    .os-resize-observer-host.observed
+      .os-resize-observer(style='left: 0px; right: auto;')
+    .os-size-auto-observer.observed(style='height: calc(100% + 1px); float: left;')
+      .os-resize-observer
+    .os-content-glue(style='margin: 0px -8px; width: 249px; height: 646px;')
+    .os-padding
+      .os-viewport.os-viewport-native-scrollbars-invisible(style='overflow-y: scroll;')
+        .os-content(style='padding: 0px 8px; height: 100%; width: 100%;')
+          // Sidebar user panel (optional)
+          .clearfix
+          // Sidebar Menu
+          nav.mt-4
+            ul.nav.nav-pills.nav-sidebar.flex-column.text-sm.nav-compact.nav-flat.nav-child-indent.nav-collapse-hide-child(data-widget='treeview' role='menu' data-accordion='false')
+              li.nav-item.dropdown
+                a.nav-link.nav-home(href='./')
+                  i.nav-icon.fas.fa-tachometer-alt
+                  p
+                    | Dashboard
+              li.nav-item.dropdown
+                a.nav-link.nav-posts(href='./?page=posts')
+                  i.nav-icon.fas.fa-blog
+                  p
+                    | Posts
+              | userdata(&apos;type&apos;) == 1): ?&gt;
+              li.nav-header Maintenance
+              li.nav-item.dropdown
+                a.nav-link.nav-categories(href='<?php echo base_url ?>admin/?page=categories')
+                  i.nav-icon.fas.fa-th-list
+                  p
+                    | Category List
+              li.nav-item.dropdown
+                a.nav-link(href='<?php echo base_url ?>admin/?page=user/list' class='nav-user/list')
+                  i.nav-icon.fas.fa-users-cog
+                  p
+                    | User List
+              li.nav-item.dropdown
+                a.nav-link.nav-system_info(href='<?php echo base_url ?>admin/?page=system_info')
+                  i.nav-icon.fas.fa-tools
+                  p
+                    | Settings
+          // /.sidebar-menu
+    .os-scrollbar.os-scrollbar-horizontal.os-scrollbar-unusable.os-scrollbar-auto-hidden
+      .os-scrollbar-track
+        .os-scrollbar-handle(style='width: 100%; transform: translate(0px, 0px);')
+    .os-scrollbar.os-scrollbar-vertical.os-scrollbar-auto-hidden
+      .os-scrollbar-track
+        .os-scrollbar-handle(style='height: 55.017%; transform: translate(0px, 0px);')
+    .os-scrollbar-corner
+  // /.sidebar
+script.
+  $(document).ready(function(){
+  var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'home' ?>';
+  var s = '<?php echo isset($_GET['s']) ? $_GET['s'] : '' ?>';
+  page = page.replace(/\\//g,'_');
+  console.log(page)
+  if($('.nav-link.nav-'+page).length > 0){
+  $('.nav-link.nav-'+page).addClass('active')
+  if($('.nav-link.nav-'+page).hasClass('tree-item') == true){
+  $('.nav-link.nav-'+page).closest('.nav-treeview').siblings('a').addClass('active')
+  $('.nav-link.nav-'+page).closest('.nav-treeview').parent().addClass('menu-open')
+  }
+  if($('.nav-link.nav-'+page).hasClass('nav-is-tree') == true){
+  $('.nav-link.nav-'+page).parent().addClass('menu-open')
+  }
+  }
+  $('.nav-link.active').addClass('bg-gradient-navy')
+  })

@@ -1,0 +1,73 @@
+| 0){
+| $qry = $conn-&gt;query(&quot;SELECT * from &grave;request_list&grave; where id = &apos;{$_GET[&apos;id&apos;]}&apos; &quot;);
+| if($qry-&gt;num_rows &gt; 0){
+| foreach($qry-&gt;fetch_assoc() as $k =&gt; $v){
+| $$k=$v;
+| }
+| }
+| }
+| ?&gt;
+.container-fluid
+  form#assign-form(action='')
+    input(type='hidden' name='id' value="<?= isset($id) ? $id : '' ?>")
+    .form-group
+      label.control-label(for='team_id')
+        | Assigned To Team
+        small.text-danger *
+      select#team_id.form-control.form-control-sm.rounded-0(name='team_id' required='required')
+        option(value='' disabled='' <?='!isset($team_id)' ?='') &gt;
+        | query(&quot;SELECT * FROM &grave;team_list&grave; where delete_flag = 0 and COALESCE((SELECT &grave;status&grave; FROM &grave;request_list&grave; where &grave;team_id&grave; = team_list.id), 0) not in (1, 2, 3) &quot;.(isset($team_id) &amp;&amp; $team_id &gt; 0 ? &quot; or id = &apos;{$team_id}&apos; &quot; : &quot;&quot;).&quot; order by &grave;code&grave; asc &quot;);
+        | while($row = $teams-&gt;fetch_assoc()):
+        | ?&gt;
+        option(value="<?= $row['id'] ?>" <?='isset($team_id)' &&='' $team_id='=' ?='' :='')
+          | &gt;
+          | [TL:
+          | ]
+script.
+  $(function(){
+  $('#uni_modal').on('shown.bs.modal', function(){
+  $('#team_id').select2({
+  placeholder:"Please Select Team Here",
+  width:"100%",
+  dropdownParent:$('#uni_modal'),
+  containerCssClass:'form-control form-control-sm rounded-0'
+  })
+  })
+  $('#assign-form').submit(function(e){
+  e.preventDefault();
+  var _this = $(this)
+  $('.err-msg').remove();
+  start_loader();
+  $.ajax({
+  url:_base_url_+"classes/Master.php?f=assign_team",
+  data: new FormData($(this)[0]),
+  cache: false,
+  contentType: false,
+  processData: false,
+  method: 'POST',
+  type: 'POST',
+  dataType: 'json',
+  error:err=>{
+  console.log(err)
+  alert_toast("An error occured",'error');
+  end_loader();
+  },
+  success:function(resp){
+  if(typeof resp =='object' && resp.status == 'success'){
+  location.reload()
+  }else if(resp.status == 'failed' && !!resp.msg){
+  var el = $('<div>')
+  el.addClass("alert alert-danger err-msg").text(resp.msg)
+  _this.prepend(el)
+  el.show('slow')
+  $("html, body, .modal").scrollTop(0);
+  end_loader()
+  }else{
+  alert_toast("An error occured",'error');
+  end_loader();
+  console.log(resp)
+  }
+  }
+  })
+  })
+  })
